@@ -29,7 +29,7 @@ resource "aws_subnet" "private_lab" {
 resource "aws_subnet" "public_lab" {
   count                   = 2
   availability_zone       = data.aws_availability_zones.available.names[count.index]
-  cidr_block              = cidrsubnet(var.vpc_cidr, 5, count.index)
+  cidr_block              = cidrsubnet(var.vpc_cidr, 5, count.index + 5)
   map_public_ip_on_launch = true
   vpc_id                  = aws_vpc.vpc_eks_lab.id
   tags = {
