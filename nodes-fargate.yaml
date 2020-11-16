@@ -1,0 +1,17 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: lab-cluster
+  region: us-east-1
+
+fargateProfiles:
+  - name: fargate-profile-lab
+    selectors:
+      # All workloads in the "kube-sytem" Kubernetes namespace will be scheduled onto Fargate:
+      - namespace: kube-system
+    subnets:
+      - subnet-00000000000000000
+      - subnet-00000000000000000
+    tags:
+      Name: fargate
