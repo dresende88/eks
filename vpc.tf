@@ -29,7 +29,7 @@ resource "aws_subnet" "private_lab" {
 resource "aws_subnet" "public_lab" {
   count                   = 2
   availability_zone       = data.aws_availability_zones.available.names[count.index]
-  cidr_block              = cidrsubnet(var.vpc_cidr, 5, count.index + 5)
+  cidr_block              = cidrsubnet(var.vpc_cidr, 5, count.index + 8)
   map_public_ip_on_launch = true
   vpc_id                  = aws_vpc.vpc_eks_lab.id
   tags = {
@@ -52,7 +52,7 @@ resource "aws_internet_gateway" "igw_eks_lab" {
 // NAT Gateway
 
 resource "aws_nat_gateway" "eks_nat" {
-  count         = length(data.aws_availability_zones.available.names)
+  count         = 2 //length(data.aws_availability_zones.available.names)
   allocation_id = element(aws_eip.nat.*.id, count.index)
   subnet_id     = element(aws_subnet.public_lab.*.id, count.index)
 
@@ -64,7 +64,7 @@ resource "aws_nat_gateway" "eks_nat" {
 // Nat Gateway Elastic IP
 
 resource "aws_eip" "nat" {
-  count = length(data.aws_availability_zones.available.names)
+  count = 2 //length(data.aws_availability_zones.available.names)
   vpc   = true
 }
 
@@ -86,7 +86,7 @@ resource "aws_route_table" "public_route" {
 //Public Route table association 
 
 resource "aws_route_table_association" "public" {
-  count          = length(data.aws_availability_zones.available.names)
+  count          = 2 //length(data.aws_availability_zones.available.names)
   subnet_id      = element(aws_subnet.public_lab.*.id, count.index)
   route_table_id = aws_route_table.public_route.id
 }
@@ -94,7 +94,7 @@ resource "aws_route_table_association" "public" {
 //Private Route table
 
 resource "aws_route_table" "private_route" {
-  count  = length(data.aws_availability_zones.available.names)
+  count  = 2 //length(data.aws_availability_zones.available.names)
   vpc_id = aws_vpc.vpc_eks_lab.id
   tags = {
     Name           = "private-route"
@@ -102,7 +102,7 @@ resource "aws_route_table" "private_route" {
 }
 
 resource "aws_route" "private_route" {
-  count                  = length(data.aws_availability_zones.available.names)
+  count                  = 2 //length(data.aws_availability_zones.available.names)
   route_table_id         = element(aws_route_table.private_route.*.id, count.index)
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = element(aws_nat_gateway.eks_nat.*.id, count.index)
@@ -111,7 +111,7 @@ resource "aws_route" "private_route" {
 //Private Route table association
 
 resource "aws_route_table_association" "private" {
-  count          = length(data.aws_availability_zones.available.names)
+  count          = 2 //length(data.aws_availability_zones.available.names)
   subnet_id      = element(aws_subnet.private_lab.*.id, count.index)
   route_table_id = element(aws_route_table.private_route.*.id, count.index)
 }
