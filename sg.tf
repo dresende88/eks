@@ -45,13 +45,6 @@ resource "aws_security_group" "node_sg" {
     security_groups = [aws_security_group.ingress_sg.id, aws_security_group.ingress_private_sg.id]
   }
 
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["10.100.1.173/32", "10.30.0.9/32"]
-  }
-
   egress {
     from_port   = 0
     to_port     = 0

@@ -18,7 +18,7 @@ nodeGroups:
     instancesDistribution:
       instanceTypes: ["m5.large", "m5a.large", "m5n.large", "m4.large"]
       onDemandBaseCapacity: 0
-      onDemandPercentageAboveBaseCapacity: 5
+      onDemandPercentageAboveBaseCapacity: 50
       spotAllocationStrategy: capacity-optimized
     privateNetworking: true
     asgMetricsCollection:
@@ -38,4 +38,4 @@ nodeGroups:
       instanceProfileARN: "arn:aws:iam::account_id:instance-profile/eks-node"
       instanceRoleARN: "arn:aws:iam::account_id:role/eks-node"
     securityGroups:
-      attachIDs: ["sg-000000000"]
+      attachIDs: ["sg-000000000000"]
