@@ -40,7 +40,7 @@ spec:
 
             # AWS VPC ID this ingress controller will use to create AWS resources.
             # If unspecified, it will be discovered from ec2metadata.
-            - --aws-vpc-id=vpc-0000000000000000
+            - --aws-vpc-id=vpc-00000000000
 
             # AWS region this ingress controller will operate in.
             # If unspecified, it will be discovered from ec2metadata.
@@ -65,5 +65,5 @@ spec:
             # - name: AWS_SECRET_ACCESS_KEY
             #   value: SECRETVALUE
           # Repository location of the ALB Ingress Controller.
-          image: docker.io/amazon/aws-alb-ingress-controller:v1.1.7
+          image: docker.io/amazon/aws-alb-ingress-controller:v1.1.8
       serviceAccountName: alb-ingress-controller

@@ -10,19 +10,145 @@ vpc:
   clusterEndpoints:
     publicAccess: true
     privateAccess: true
-  id: "vpc-000000000000"
+  id: "vpc-000000000"
   cidr: "172.16.0.0/16"
-  securityGroup: "sg-000000000000"
+  securityGroup: "sg-054f321af5bcb8383"
   subnets:
     private:
-      us-east-1a: { id: subnet-000000000000 }
-      us-east-1b: { id: subnet-000000000000 }
+      us-east-1a: { id: subnet-00000000000 }
+      us-east-1b: { id: subnet-00000000000 }
     public:
-      us-east-1a: { id: subnet-000000000000 }
-      us-east-1b: { id: subnet-000000000000 }
-iam:
-  serviceRoleARN: "arn:aws:iam::account_id:role/eks-cluster"
+      us-east-1a: { id: subnet-00000000000 }
+      us-east-1b: { id: subnet-00000000000 }
 
 cloudWatch:
   clusterLogging:
     enableTypes: ["*"]
+
+iam:
+  serviceRoleARN: "arn:aws:iam::208329978497:role/eks-cluster"
+  withOIDC: true # https://eksctl.io/usage/iamserviceaccounts/
+
+  serviceAccounts:
+    - metadata:
+        name: cluster-autoscaler
+        namespace: kube-system
+        labels: { aws-usage: "cluster-ops" }
+      attachPolicy: # inline policy can be defined along with `attachPolicyARNs`
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "autoscaling:DescribeAutoScalingGroups"
+              - "autoscaling:DescribeAutoScalingInstances"
+              - "autoscaling:DescribeLaunchConfigurations"
+              - "autoscaling:DescribeTags"
+              - "autoscaling:SetDesiredCapacity"
+              - "autoscaling:TerminateInstanceInAutoScalingGroup"
+              - "ec2:DescribeLaunchTemplateVersions"
+            Resource: "*"
+    - metadata:
+        name: cert-manager
+        namespace: cert-manager
+        labels: { aws-usage: "cluster-ops" }
+      attachPolicy: # inline policy can be defined along with `attachPolicyARNs`
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "route53:GetChange"
+            Resource: "arn:aws:route53:::change/*"
+          - Effect: Allow
+            Action:
+              - "route53:ChangeResourceRecordSets"
+              - "route53:ListResourceRecordSets"
+            Resource: "arn:aws:route53:::hostedzone/*"
+          - Effect: Allow
+            Action:
+              - "route53:ListHostedZonesByName"
+            Resource: "*"
+    - metadata:
+        name: alb-ingress-controller
+        namespace: kube-system
+        labels: { aws-usage: "cluster-ops" }
+      attachPolicy: # inline policy can be defined along with `attachPolicyARNs`
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "acm:DescribeCertificate"
+              - "acm:ListCertificates"
+              - "acm:GetCertificate"
+              - "ec2:AuthorizeSecurityGroupIngress"
+              - "ec2:CreateSecurityGroup"
+              - "ec2:CreateTags"
+              - "ec2:DeleteTags"
+              - "ec2:DeleteSecurityGroup"
+              - "ec2:DescribeAccountAttributes"
+              - "ec2:DescribeAddresses"
+              - "ec2:DescribeInstances"
+              - "ec2:DescribeInstanceStatus"
+              - "ec2:DescribeInternetGateways"
+              - "ec2:DescribeNetworkInterfaces"
+              - "ec2:DescribeSecurityGroups"
+              - "ec2:DescribeSubnets"
+              - "ec2:DescribeTags"
+              - "ec2:DescribeVpcs"
+              - "ec2:ModifyInstanceAttribute"
+              - "ec2:ModifyNetworkInterfaceAttribute"
+              - "ec2:RevokeSecurityGroupIngress"
+              - "elasticloadbalancing:AddListenerCertificates"
+              - "elasticloadbalancing:AddTags"
+              - "elasticloadbalancing:CreateListener"
+              - "elasticloadbalancing:CreateLoadBalancer"
+              - "elasticloadbalancing:CreateRule"
+              - "elasticloadbalancing:CreateTargetGroup"
+              - "elasticloadbalancing:DeleteListener"
+              - "elasticloadbalancing:DeleteLoadBalancer"
+              - "elasticloadbalancing:DeleteRule"
+              - "elasticloadbalancing:DeleteTargetGroup"
+              - "elasticloadbalancing:DeregisterTargets"
+              - "elasticloadbalancing:DescribeListenerCertificates"
+              - "elasticloadbalancing:DescribeListeners"
+              - "elasticloadbalancing:DescribeLoadBalancers"
+              - "elasticloadbalancing:DescribeLoadBalancerAttributes"
+              - "elasticloadbalancing:DescribeRules"
+              - "elasticloadbalancing:DescribeSSLPolicies"
+              - "elasticloadbalancing:DescribeTags"
+              - "elasticloadbalancing:DescribeTargetGroups"
+              - "elasticloadbalancing:DescribeTargetGroupAttributes"
+              - "elasticloadbalancing:DescribeTargetHealth"
+              - "elasticloadbalancing:ModifyListener"
+              - "elasticloadbalancing:ModifyLoadBalancerAttributes"
+              - "elasticloadbalancing:ModifyRule"
+              - "elasticloadbalancing:ModifyTargetGroup"
+              - "elasticloadbalancing:ModifyTargetGroupAttributes"
+              - "elasticloadbalancing:RegisterTargets"
+              - "elasticloadbalancing:RemoveListenerCertificates"
+              - "elasticloadbalancing:RemoveTags"
+              - "elasticloadbalancing:SetIpAddressType"
+              - "elasticloadbalancing:SetSecurityGroups"
+              - "elasticloadbalancing:SetSubnets"
+              - "elasticloadbalancing:SetWebACL"
+              - "iam:CreateServiceLinkedRole"
+              - "iam:GetServerCertificate"
+              - "iam:ListServerCertificates"
+              - "cognito-idp:DescribeUserPoolClient"
+              - "waf-regional:GetWebACLForResource"
+              - "waf-regional:GetWebACL"
+              - "waf-regional:AssociateWebACL"
+              - "waf-regional:DisassociateWebACL"
+              - "tag:GetResources"
+              - "tag:TagResources"
+              - "waf:GetWebACL"
+              - "wafv2:GetWebACL"
+              - "wafv2:GetWebACLForResource"
+              - "wafv2:AssociateWebACL"
+              - "wafv2:DisassociateWebACL"
+              - "shield:DescribeProtection"
+              - "shield:GetSubscriptionState"
+              - "shield:DeleteProtection"
+              - "shield:CreateProtection"
+              - "shield:DescribeSubscription"
+              - "shield:ListProtections"
+            Resource: "*"
